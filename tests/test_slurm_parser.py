@@ -1,0 +1,1 @@
+from clustersense.parsing.slurm_parser import parse_line

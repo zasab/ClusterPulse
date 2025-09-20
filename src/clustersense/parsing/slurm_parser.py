@@ -1,4 +1,4 @@
-from log_record import LogRecord
+from clustersense.parsing.log_record import LogRecord
 from typing import Optional, Dict, Union
 from datetime import datetime
 import re
@@ -38,7 +38,7 @@ def parse_alloctres(alloctres: str) -> Optional[Dict[str, Union[int, str]]]:
 def parse_mem(reqmem:str) -> Optional[int]:
     reqmem_re = re.compile(r"^(?P<mem>\d+)(?P<unit>[A-Z]*)$")
     reqmem_match = reqmem_re.match(reqmem)
-    if reqmem_match None:
+    if reqmem_match is None:
         return None
     mem = reqmem_match.group("mem")
     unit = reqmem_match.group("unit").upper()
