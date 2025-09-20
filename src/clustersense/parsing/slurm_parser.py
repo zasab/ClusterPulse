@@ -124,5 +124,7 @@ def parse_line(line:str) -> Optional[LogRecord]:
 
     return LogRecord(**infos_dict)
 
-data = '2025-09-01T12:34:56Z clusterA slurmctld[911]: JobId=123 User=zahra Account=projA Partition=cpu Nodes=2 NTasks=64 State=COMPLETED ExitCode=0:0 Elapsed=00:12:34 CPUTime=00:26:48 ReqMem=4G AllocTRES=cpu=64,mem=8G'
-print(parse_line(data))
+
+
+
+
