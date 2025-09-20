@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, Dict
+from typing import Optional, Dict, Union
 
 @dataclass(frozen=True, slots=True)
 class LogRecord:
@@ -18,5 +18,5 @@ class LogRecord:
     elapsed_seconds: Optional[int] = None
     cputime_seconds: Optional[int] = None
     req_mem_mb: Optional[int] = None
-    alloc_tres: Optional[Dict[str, str]] = None
+    alloc_tres: Optional[Dict[str, Union[int, str]]] = None
     raw: str = ""
