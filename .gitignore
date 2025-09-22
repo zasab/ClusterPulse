@@ -7,3 +7,6 @@ __pycache__/
 
 src/ClusterPulse.egg-info/
 *.egg-info/
+
+.pgdata/
+.env
