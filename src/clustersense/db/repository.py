@@ -1,0 +1,73 @@
+# src/clustersense/db/repository.py
+
+from typing import Optional
+from clustersense.db.session import get_sessionmaker
+from clustersense.db.models import JobLog
+from clustersense.parsing.log_record import LogRecord  # your dataclass
+from datetime import datetime, timezone
+
+
+def insert_job_log(record: LogRecord) -> int:
+    # Basic guard: ts/cluster/component are NOT NULL in DB
+    if record.ts is None or not record.cluster or not record.component:
+        raise ValueError("record.ts, record.cluster, and record.component are required")
+
+    Session = get_sessionmaker()
+
+    job = JobLog(
+        ts=record.ts,
+        cluster=record.cluster,
+        component=record.component,
+        job_id=record.job_id,
+        username=record.user,
+        account=record.account,
+        partition=record.partition,
+        nodes=record.nodes,
+        ntasks=record.ntasks,
+        state=record.state,
+        exit_code=record.exit_code,
+        elapsed_seconds=record.elapsed_seconds,
+        cputime_seconds=record.cputime_seconds,
+        req_mem_mb=record.req_mem_mb,
+        alloc_tres=record.alloc_tres,
+        raw=record.raw or ""
+    )
+
+    with Session() as s:
+        s.add(job)
+        s.commit()
+
+        return int(job.id)
+
+
+def get_job_log_by_id(job_id: int) -> Optional[LogRecord]:
+    if job_id is None:
+        raise ValueError("job_id is required")
+
+    Session = get_sessionmaker()
+
+    with Session() as s:
+        row = s.get(JobLog, job_id)
+
+        if row is None:
+            return None
+
+        return LogRecord(
+            ts=row.ts,
+            cluster=row.cluster,
+            component=row.component,
+            job_id=row.job_id,
+            user=row.username,
+            account=row.account,
+            partition=row.partition,
+            nodes=row.nodes,
+            ntasks=row.ntasks,
+            state=row.state,
+            exit_code=row.exit_code,
+            elapsed_seconds=row.elapsed_seconds,
+            cputime_seconds=row.cputime_seconds,
+            req_mem_mb=row.req_mem_mb,
+            alloc_tres=row.alloc_tres,
+            raw=row.raw,
+        )
+
