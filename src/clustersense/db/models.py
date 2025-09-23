@@ -21,7 +21,7 @@ class JobLog(Base):
 	component: Mapped[str] = mapped_column(Text, nullable=False)
 
 	job_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
-	user: Mapped[str | None] = mapped_column(Text, nullable=True)
+	username: Mapped[str | None] = mapped_column(Text, nullable=True)
 	account: Mapped[str | None] = mapped_column(Text, nullable=True)
 	partition: Mapped[str | None] = mapped_column(Text, nullable=True)
 	nodes: Mapped[int | None] = mapped_column(Integer, nullable=True)
