@@ -3,6 +3,7 @@ from sqlalchemy import String, Integer, BigInteger, Text, TIMESTAMP
 # String for short, structured text with a max length.
 # Text for large, unbounded text (like your raw log line).
 from sqlalchemy.dialects.postgresql import JSONB
+import sqlalchemy as sa
 
 
 # all other classes inherit from it, all tables share the same metadata
@@ -34,6 +35,10 @@ class JobLog(Base):
 	alloc_tres: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
 	raw: Mapped[str] = mapped_column(Text, nullable=False)
+
+	__table_args__ = (
+        sa.Index("ix_job_logs_job_id", "job_id")
+    )
 
 
 
