@@ -71,3 +71,49 @@ def get_job_log_by_id(job_id: int) -> Optional[LogRecord]:
             raw=row.raw,
         )
 
+# Repository Function
+def find_by_job_id(job_id: int) -> list[LogRecord]:
+    """
+    Return all JobLog records with this scheduler job_id (can be multiple rows if
+    the scheduler logs multiple events per job). Ordered by ts ascending.
+    - Raises ValueError if job_id is None or < 0.
+    - Returns [] if none found.
+    """
+    if job_id is None:
+        raise ValueError("job_id is required")
+
+    Session = get_sessionmaker()
+
+    records =  []
+    with Session() as s:
+        rows = (
+            s.query(JobLog)
+            .filter(JobLog.job_id == job_id)
+            .order_by(JobLog.ts.asc())
+            .all())
+        
+        for row in rows:
+            log_record = LogRecord(
+                ts=row.ts,
+                cluster=row.cluster,
+                component=row.component,
+                job_id=row.job_id,
+                user=row.username,
+                account=row.account,
+                partition=row.partition,
+                nodes=row.nodes,
+                ntasks=row.ntasks,
+                state=row.state,
+                exit_code=row.exit_code,
+                elapsed_seconds=row.elapsed_seconds,
+                cputime_seconds=row.cputime_seconds,
+                req_mem_mb=row.req_mem_mb,
+                alloc_tres=row.alloc_tres,
+                raw=row.raw,
+            )
+
+            records.append(log_record)
+
+        return records
+
+

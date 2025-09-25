@@ -37,7 +37,7 @@ class JobLog(Base):
 	raw: Mapped[str] = mapped_column(Text, nullable=False)
 
 	__table_args__ = (
-        sa.Index("ix_job_logs_job_id", "job_id")
+        sa.Index("ix_job_logs_job_id", "job_id"),
     )
 
 
