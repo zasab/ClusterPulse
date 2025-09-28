@@ -25,6 +25,25 @@ def _insert_two_rows(job_id: int):
     insert_job_log(r1)
     insert_job_log(r2)
 
+def _insert_two_rows_specific_username(username: str):
+    r1 = LogRecord(
+        ts=datetime(2025,9,1,12,0,0,tzinfo=timezone.utc),
+        cluster="clusterA", component="slurmctld",
+        job_id="42366728", user=username, account="projA", partition="cpu",
+        nodes=2, ntasks=64, state="RUNNING", exit_code=None,
+        elapsed_seconds=60, cputime_seconds=120, req_mem_mb=2048,
+        alloc_tres={"cpu":"64","mem":4096}, raw="line1"
+    )
+    r2 = LogRecord(
+        ts=datetime(2025,9,1,12,10,0,tzinfo=timezone.utc),
+        cluster="clusterA", component="slurmctld",
+        job_id="42366728", user=username, account="projA", partition="cpu",
+        nodes=2, ntasks=64, state="COMPLETED", exit_code="0:0",
+        elapsed_seconds=300, cputime_seconds=600, req_mem_mb=2048,
+        alloc_tres={"cpu":"64","mem":4096}, raw="line2"
+    )
+    insert_job_log(r1)
+    insert_job_log(r2)
 
 def test_get_jobs_by_jobid_ok(client):
     job_id = 424242
@@ -52,6 +71,23 @@ def test_get_job_by_id(client):
     data = resp.get_json()
     assert isinstance(data, list)
     assert any(job["user"] == "zahra" for job in data)
+
+def test_get_jobs_by_username_ok(client):
+    username = "Nabaut"
+    try:
+        _insert_two_rows_specific_username(username)
+    except OperationalError:
+        pytest.skip("Datanase not running")
+
+    
+    resp = client.get(f"/api/jobs/by-username/{username}")
+    assert resp.status_code == 200
+
+    data = resp.get_json(resp)
+    assert isinstance(data, list)
+    assert len(data) >= 2
+    assert {"ts","cluster","component","job_id","user","state","raw"}.issubset(data[0].keys())
+
 
 
 
