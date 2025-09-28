@@ -92,6 +92,23 @@ def test_get_jobs_by_username_bad_input(client):
     resp = client.get("/api/jobs/by-username/-544")
     assert resp.status_code == 400
 
+def test_get_jobs_by_state_ok(client):
+    state = 'RUNNING'
+    try:
+        resp = client.get(f"/api/jobs/by-state/{state}")
+    except OperationalError:
+        pytest.skip("Database not running")
+    
+    assert resp.status_code == 200
+    data = resp.get_json(resp)
+    assert isinstance(data, list)
+    assert len(data) >= 2
+    assert {"ts","cluster","component","job_id","user","state","raw"}.issubset(data[0].keys())
+
+def test_get_jobs_by_state_bad_input(client):
+    resp = client.get("/api/jobs/by-state/nnn")
+    assert resp.status_code == 400
+
 
 
 

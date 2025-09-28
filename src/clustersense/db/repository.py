@@ -150,6 +150,44 @@ def find_by_username(username:str) -> list[LogRecord]:
         return records
 
 
+def find_by_state(state: str) -> list[LogRecord]: 
+    if state is None:
+        raise ValueError("state is required")
+    
+    Session = get_sessionmaker()
+
+    records = []
+
+    with Session() as s:
+        rows = (
+            s.query(JobLog)
+            .filter(JobLog.state == state)
+            .all()
+        )
+
+    for row in rows:
+        log_record = LogRecord(
+                ts=row.ts,
+                cluster=row.cluster,
+                component=row.component,
+                job_id=row.job_id,
+                user=row.username,
+                account=row.account,
+                partition=row.partition,
+                nodes=row.nodes,
+                ntasks=row.ntasks,
+                state=row.state,
+                exit_code=row.exit_code,
+                elapsed_seconds=row.elapsed_seconds,
+                cputime_seconds=row.cputime_seconds,
+                req_mem_mb=row.req_mem_mb,
+                alloc_tres=row.alloc_tres,
+                raw=row.raw,
+            )
+
+        records.append(log_record)
+
+    return records
 
 
 

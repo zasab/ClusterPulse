@@ -3,7 +3,7 @@
 
 from flask import Blueprint, jsonify
 from sqlalchemy.exc import OperationalError
-from clustersense.db.repository import find_by_job_id, find_by_username
+from clustersense.db.repository import find_by_job_id, find_by_username, find_by_state
 from clustersense.api.schemas import LogRecordOut
 from dataclasses import asdict
 
@@ -39,6 +39,22 @@ def get_jobs_by_user(username: str):
 
     try:
         records = find_by_username(username)
+    except OperationalError:
+        return jsonify({"error": "database unavailable"}), 503
+
+    payload = [LogRecordOut(**asdict(r)).model_dump(mode="json") for r in records]
+
+    return jsonify(payload), 200
+
+valid_states = ['PENDING', 'RUNNING', 'COMPLETED', 'PD', 'R', 'C']
+@api_bp.get("/jobs/by-state/<state>")
+def get_jobs_by_state(state:str):
+
+    if state.upper() not in valid_states:
+        return jsonify({"error": "state is invalid"}), 400
+
+    try:
+        records = find_by_state(state)
     except OperationalError:
         return jsonify({"error": "database unavailable"}), 503
 
