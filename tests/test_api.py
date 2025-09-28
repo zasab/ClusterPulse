@@ -88,6 +88,10 @@ def test_get_jobs_by_username_ok(client):
     assert len(data) >= 2
     assert {"ts","cluster","component","job_id","user","state","raw"}.issubset(data[0].keys())
 
+def test_get_jobs_by_username_bad_input(client):
+    resp = client.get("/api/jobs/by-username/-544")
+    assert resp.status_code == 400
+
 
 
 

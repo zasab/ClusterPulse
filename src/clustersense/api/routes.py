@@ -30,8 +30,13 @@ def get_jobs_by_jobid(job_id: str):
     return jsonify(payload), 200
 
 
+forbiden_chars = ['-', '/', '\\']
 @api_bp.get("/jobs/by-username/<username>")
 def get_jobs_by_user(username: str):
+    for char in forbiden_chars:
+        if char in username:
+            return jsonify({"error": f"username must not contain {char}"}), 400
+
     try:
         records = find_by_username(username)
     except OperationalError:
