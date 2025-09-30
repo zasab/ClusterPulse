@@ -78,8 +78,8 @@ def _parse_iso8601(s: str) -> datetime | None:
     except Exception:
         return None
 
-@api_bp.get("/jobs/by_timerange")
-def get_jobs_by_timerange(ts_from:datetime, ts_to:datetime):
+@api_bp.get("/jobs/by-timerange")
+def get_jobs_by_timerange():
     q_from = request.args.get("from")
     q_to = request.args.get("to")
 

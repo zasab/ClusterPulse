@@ -5,6 +5,7 @@ from clustersense.db.session import get_sessionmaker
 from clustersense.db.models import JobLog
 from clustersense.parsing.log_record import LogRecord  # your dataclass
 from datetime import datetime, timezone
+from sqlalchemy import select
 
 
 def insert_job_log(record: LogRecord) -> int:
