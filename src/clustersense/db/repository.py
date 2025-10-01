@@ -112,20 +112,64 @@ def find_by_job_id(job_id: int) -> list[LogRecord]:
         return records
 
 
-def find_by_username(username:str) -> list[LogRecord]:
-    if username is None:
+def find_by_username(
+            username:str,
+            ts_from: Optional[datetime] = None,
+            ts_to: Optional[datetime] = None,
+            limit: int | None = None,
+            offset: int | None = None
+        ) -> list[LogRecord]:
+    
+    if username is None or not username.strip():
         raise ValueError("username is required")
+    username = username.strip()
+
+    if (
+        (ts_from is not None
+            and ts_from.tzinfo is None)
+        or (ts_to is not None
+            and ts_to.tzinfo is None)
+        ):
+        raise ValueError("timestamps must be timezone-aware (e.g., UTC)")
+    if ts_from is not None and ts_to is not None and ts_from >= ts_to:
+        raise ValueError("ts_from must be < ts_to")
+
+    if (
+        limit is not None and 
+        (limit < 1 or limit > 1000)
+        ):
+        raise ValueError("limit must be between 1 and 1000.")
+
+    if offset is not None and offset < 0:
+        raise ValueError("offset must be >=0")
+
 
     Session = get_sessionmaker()
 
     records = []
 
     with Session() as s:
-        rows = (
-            s.query(JobLog)
-            .filter(JobLog.username == username)
-            .all()
+        SQL_statement = (
+            select(JobLog)
+            .where(JobLog.username == username)
+            .order_by(JobLog.ts.asc())
             )
+
+        if ts_from is not None:
+            SQL_statement = SQL_statement.where(JobLog.ts >= ts_from)
+
+        if ts_to is not None:
+            SQL_statement = SQL_statement.where(JobLog.ts < ts_to)
+
+        if limit is not None:
+            SQL_statement = SQL_statement.limit(limit)
+
+        if offset is not None:
+            SQL_statement = SQL_statement.offset(offset)
+
+
+        rows = s.execute(SQL_statement).scalars().all()
+
         for row in rows:
             log_record = LogRecord(
                 ts=row.ts,
@@ -148,6 +192,7 @@ def find_by_username(username:str) -> list[LogRecord]:
 
             records.append(log_record)
 
+        print("records: ", records)
         return records
 
 
