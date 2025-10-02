@@ -37,14 +37,30 @@ def get_jobs_by_jobid(job_id: str):
 
 
 forbiden_chars = ['-', '/', '\\']
-@api_bp.get("/jobs/by-username/<username>")
-def get_jobs_by_user(username: str):
+@api_bp.get("/jobs/by-username")
+def get_jobs_by_user():
+    username = request.args.get("username")
     for char in forbiden_chars:
         if char in username:
             return jsonify({"error": f"username must not contain {char}"}), 400
 
+    if "from" in request.args:
+        q_from = request.args.get("from")
+        ts_from = _parse_iso8601(q_from)
+    
+
+    if "to" in request.args:
+        q_to = request.args.get("to")
+        ts_to   = _parse_iso8601(q_to)
+
+    if "limit" in request.args:
+        limit = int(request.args.get("limit"))
+
+    if "offset" in request.args:
+        offset = int(request.args.get("offset"))
+    
     try:
-        records = find_by_username(username)
+        records = find_by_username(username, ts_from, ts_to, limit, offset)
     except OperationalError:
         return jsonify({"error": "database unavailable"}), 503
 

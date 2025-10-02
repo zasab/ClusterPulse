@@ -10,3 +10,6 @@ src/ClusterPulse.egg-info/
 
 .pgdata/
 .env
+
+*/.DS_Store
+*.DS_Store

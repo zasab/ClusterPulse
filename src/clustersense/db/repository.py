@@ -4,7 +4,7 @@ from typing import Optional
 from clustersense.db.session import get_sessionmaker
 from clustersense.db.models import JobLog
 from clustersense.parsing.log_record import LogRecord  # your dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from sqlalchemy import select
 
 
@@ -143,7 +143,6 @@ def find_by_username(
     if offset is not None and offset < 0:
         raise ValueError("offset must be >=0")
 
-
     Session = get_sessionmaker()
 
     records = []
@@ -157,6 +156,7 @@ def find_by_username(
 
         if ts_from is not None:
             SQL_statement = SQL_statement.where(JobLog.ts >= ts_from)
+
 
         if ts_to is not None:
             SQL_statement = SQL_statement.where(JobLog.ts < ts_to)
@@ -192,7 +192,6 @@ def find_by_username(
 
             records.append(log_record)
 
-        print("records: ", records)
         return records
 
 
